@@ -13,7 +13,7 @@ const conf = { encoding: "utf8"};
 // console.log(__filename);
 // console.log(jsonPath);
 
-export async function getFeed() {
+export async function getFeeds() {
     try {
         await access(jsonPath, constants.F_OK);
     } catch (e) {
@@ -24,7 +24,7 @@ export async function getFeed() {
     return JSON.parse(content);
 }
 
-export async function saveFeed(feed)
+export async function saveFeeds(feed)
 {
     return writeFile(jsonPath, JSON.stringify(feed), conf);
 }

@@ -1,8 +1,12 @@
-import { getFeed, saveFeed } from "./feed-manager.mjs";
+import { getFeeds, saveFeeds } from "./feed-manager.mjs";
 import { question, close } from "./cmd.mjs";
+import axios from "axios"; // Default exports, don't use '{}'
+import Parser from "rss-parser";
 
-const feed = await getFeed();
-let op = await question("Choose\n- list\n- add [URL]\n- del [idx]\n- exit\n?: ");
+let idx = null;
+const parser = new Parser();
+const feeds = await getFeeds();
+let op = await question("Choose\n- list\n- read [idx]\n- add [URL]\n- del [idx]\n- exit\n?: ");
 
 while (op !== "exit") {
     console.log(op);
@@ -14,7 +18,7 @@ while (op !== "exit") {
     switch (param1) {
         case "ls":
         case "list":
-            feed.forEach((url, idx) => console.log(`${idx}: ${url}`));
+            feeds.forEach((url, idx) => console.log(`${idx}: ${url}`));
             break;
 
         case "add":
@@ -22,7 +26,7 @@ while (op !== "exit") {
                 console.log(`-> add [URL]`);
                 break;
             }
-            feed.push(param2);
+            feeds.push(param2);
             break;
 
         case "del":
@@ -31,13 +35,33 @@ while (op !== "exit") {
                 break;
             }
 
-            const idx = parseInt(param2, 10);
-            if (idx < 0 || idx > feed.length - 1) {
-                console.log(`-> [idx] must lie between 0 and ${feed.length - 1}`);
+            idx = parseInt(param2, 10);
+            if (idx < 0 || idx > feeds.length - 1) {
+                console.log(`-> [idx] must lie between 0 and ${feeds.length - 1}`);
                 break;
             }
-            const deleted = feed.splice(idx, 1);
+            const deleted = feeds.splice(idx, 1);
             console.log(`del ${deleted}`)
+            break;
+
+        case "read":
+            if (!param2) {
+                console.log(`-> read [idx]`);
+                break;
+            }
+
+            idx = parseInt(param2, 10);
+            if (idx < 0 || idx > feeds.length - 1) {
+                console.log(`-> [idx] must lie between 0 and ${feeds.length - 1}`);
+                break;
+            }
+
+            const url = feeds[idx];
+            let {data} = await axios.get(url);
+
+            const feed = await parser.parseString(data);
+            feed.items.forEach(item => console.log(item.title));
+
             break;
 
         default:
@@ -45,8 +69,8 @@ while (op !== "exit") {
     }
     console.log();
 
-    op = await question("Choose\n- list\n- add [URL]\n- del [idx]\n- exit\n?: ");
+    op = await question("Choose\n- list\n- read [idx]\n- add [URL]\n- del [idx]\n- exit\n?: ");
 }
 
 await close();
-await saveFeed(feed);
+await saveFeeds(feeds);
