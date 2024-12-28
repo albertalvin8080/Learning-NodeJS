@@ -2,9 +2,10 @@ import { createServer } from "http";
 import * as data from "./data.js";
 import { view, addForm } from "./content.js";
 import { parse } from "querystring";
-// npm run dev
+import { readFile } from "fs/promises";
 
-const server = createServer((request, response) =>
+// npm run dev
+const server = createServer(async (request, response) =>
 {
     console.log(request.url);
     const parts = request.url.split("/");
@@ -25,11 +26,26 @@ const server = createServer((request, response) =>
     response.end(`Method ${request.method} not allowed.`);
 });
 
-function handleGET(request, response, parts)
+async function handleGET(request, response, parts)
 {
     const urlStr = request.url;
     const url = new URL(urlStr, `http://localhost:${server.address().port}`);
     const id = url.searchParams.get("id");
+
+    if (urlStr == "/assets/css/style.css")
+    {
+        try
+        {
+            const file = await readFile("./public/assets/css/style.css");
+            response.writeHead(200);
+            response.end(file);
+        } catch(e)
+        {
+            response.statusCode = 404;
+            response.end();
+        }
+        return;
+    }
 
     // /delete/{id}
     if (parts.includes("delete"))
