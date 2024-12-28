@@ -1,78 +1,90 @@
 import { createServer } from "http";
-import { default as constAuthors } from "./authors.js";
+import * as data from "./data.js";
+import { view, addForm } from "./content.js";
+import { parse } from "querystring";
 // npm run dev
-
-let authors = constAuthors;
 
 const server = createServer((request, response) =>
 {
-    response.writeHead(200, { "Content-Type": "text/html;charset=utf8" });
+    console.log(request.url);
+    const parts = request.url.split("/");
 
+    if (request.method === "POST")
+    {
+        handlePOST(request, response, parts);
+        return;
+    }
+
+    if (request.method === "GET")
+    {
+        handleGET(request, response, parts);
+        return;
+    }
+
+    response.writeHead(405);
+    response.end(`Method ${request.method} not allowed.`);
+});
+
+function handleGET(request, response, parts)
+{
     const urlStr = request.url;
-    console.log(urlStr);
-
     const url = new URL(urlStr, `http://localhost:${server.address().port}`);
     const id = url.searchParams.get("id");
 
-    const parts = urlStr.split("/");
-
-    let body = null;
-
-    const delId = parts[2];
     // /delete/{id}
-    if (parts.includes("delete") && delId)
+    if (parts.includes("delete"))
     {
-        body = handleDelete(delId);
-    } 
-    else
-    {
-        body = id ? getAuthor(id) : getAll(authors);
+        const delId = parseInt(parts[2], 10);
+        data.deleteAuthor(delId);
+        redirect(response, "/");
+        return;
     }
 
-    const html = `
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Authors</title>
-    </head>
-    <body>
-        ${body}
-    </body>
-    </html>
-    `;
+    if (parts.includes("add"))
+    {
+        response.writeHead(200, { "Content-Type": "text/html;charset=utf8" });
+        const content = addForm();
+        const html = view(content);
+        response.end(html);
+        return;
+    }
 
+    response.writeHead(200, { "Content-Type": "text/html;charset=utf8" });
+    const content = id ? data.getAuthor(id) : data.getAll();
+    const html = view(content);
     response.end(html);
-});
-
-function handleDelete(delId)
-{
-    delId = parseInt(delId, 10);
-    authors = authors.filter((a) => a.id !== delId);
-    return getAll(authors);
 }
 
-function getAuthor(id)
+function handlePOST(request, response, parts)
 {
-    const author = authors.find(a => a.id == id);
-    return `
-    <a href="/">Home</a>
-    <ul>
-        <li>name: ${author.name}</li>
-        <li>age: ${author.age}</li>
-    </ul>
-    `;
+    if (parts.includes("save"))
+    {
+        let body = ``;
+
+        request.on("readable", () =>
+        {
+            const chunk = request.read();
+            if (chunk)
+                body += chunk;
+        });
+
+        request.on("end", () =>
+        {
+            const formData = parse(body);
+            data.saveAuthor(formData);
+            redirect(response, "/");
+        });
+        return;
+    }
+
+    response.writeHead(404);
+    response.end("Not Found");
 }
 
-function getAll(authors)
+function redirect(response, location)
 {
-    return `
-    <h2>Authors</h2>
-    <ul>
-        ${authors.map(a => `<li><a href="?id=${a.id}">${a.name} - ${a.age}</a></li>`).join("")}
-    </ul>
-    `;
+    response.writeHead(302, { location: location });
+    response.end(`Redirect to ${location}`);
 }
 
 server.listen(8080, () =>
