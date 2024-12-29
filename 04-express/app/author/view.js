@@ -29,6 +29,7 @@ const views = {
         <h2>Authors</h2>
         <ul>${content}</ul>
         <a href="/author/create">Create</a>
+        <a href="/logout">Logout</a>
         `;
         return this._layout({ content });
     },

@@ -1,5 +1,6 @@
 import { Router } from "express";
 import * as controller from "./controller.js";
+import { checkAuthMiddleware } from "../auth/controller.js";
 
 export const routes = new Router();
 
@@ -7,21 +8,6 @@ export const routes = new Router();
 function routeLevelMiddleware(req, res, next)
 {
     console.log("Route Middleware: " + req.url);
-    next();
-}
-
-// Method level middleware
-function checkAuthMiddleware(req, res, next)
-{
-    console.log("Method Middleware: " + req.url);
-    const authenticate = true;
-
-    if (!authenticate)
-    {
-        res.redirect("/login");
-        return;
-    }
-
     next();
 }
 

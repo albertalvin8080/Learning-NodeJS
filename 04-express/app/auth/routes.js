@@ -3,5 +3,7 @@ import * as controller from "./controller.js"
 
 export const routes = new Router();
 
-routes.get("/", controller.login);
-routes.post("/", controller.authenticate);
+routes.get("/login", controller.login);
+routes.post("/login", controller.authenticate);
+
+routes.get("/logout", controller.logout);
