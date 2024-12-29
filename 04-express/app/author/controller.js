@@ -13,7 +13,6 @@ export async function getAll(req, res)
 export async function getByAge(req, res)
 {
     const age = req.params.age;
-    console.log(age);
 
     let authors = await model.getByAge(parseInt(age, 10));
 
@@ -26,7 +25,6 @@ export async function getByAge(req, res)
 export async function getById(req, res)
 {
     const id = req.params.id;
-    console.log(id);
 
     let author = await model.getById(parseInt(id, 10));
 
@@ -113,3 +111,24 @@ export async function updateAuthorPOST(req, res)
 
     res.redirect(`/author/id/${id}`);
 }
+
+export async function deleteAuthor(req, res)
+{
+    const id = parseInt(req.params.id, 10);
+    if (!id)
+    {
+        res.sendStatus(404);
+        return;
+    }
+
+    // This may seem reundant but it's actually better with regard to computational costs.
+    const author = await model.getById(id);
+    if (!author)
+    {
+        res.sendStatus(404);
+        return;
+    }
+
+    await model.deleteById(id);
+    res.redirect("/author");
+} 

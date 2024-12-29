@@ -41,6 +41,7 @@ const views = {
         </ul>
         <a href="/author">Home</a><br>
         <a href="/author/update/${author.id}">Update</a><br>
+        <a href="/author/delete/${author.id}">Delete</a><br>
         `;
         return this._layout({ content, title: author.name });
     },
