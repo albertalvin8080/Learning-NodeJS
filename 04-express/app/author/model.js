@@ -1,5 +1,3 @@
-import { Router } from "express";
-
 let id = 0;
 
 function newId()
@@ -15,14 +13,22 @@ const authors = [
     { id: newId(), name: "Klaus Poppe", age: 45 },
 ];
 
-export const routes = new Router();
-
-routes.get("/", (req, res) =>
+export function getAll()
 {
-    res.send(authors);
-});
+    return Promise.resolve(authors);
+}
 
-routes.get("/1", (req, res) =>
+export function getById(id)
 {
-    res.send(authors[0]);
-})
+    return Promise.resolve(authors.find(a => a.id === id));
+}
+
+export function getByAge(age)
+{
+    return Promise.resolve(authors.filter(a => a.age === age));
+}
+
+export function save({ name, age })
+{
+    authors.push({ id: newId(), name, age });
+}

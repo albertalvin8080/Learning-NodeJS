@@ -1,5 +1,5 @@
 import express from "express";
-import { routes as authorRoutes } from "./author/index.js";
+import { routes as authorRoutes } from "./author/router.js";
 
 const app = express();
 
