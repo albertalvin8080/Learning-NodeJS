@@ -3,6 +3,11 @@ import { routes as authorRoutes } from "./author/routes.js";
 import { routes as authenticationRoutes } from "./auth/routes.js";
 import session from "express-session";
 import { create as createHandlebars } from "express-handlebars";
+import mongoose from "mongoose";
+import dotenv from "dotenv";
+
+dotenv.config();
+mongoose.connect(`mongodb+srv://${process.env.DB_ADMIN}:${process.env.DB_PASSWORD}@cluster0.arfjd.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`);
 
 const app = express();
 const hbs = createHandlebars();

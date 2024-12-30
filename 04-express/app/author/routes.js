@@ -1,5 +1,6 @@
 import { Router } from "express";
-import * as controller from "./controller.js";
+// import * as controller from "./controller.js";
+import * as controller from "./controllerV2.js";
 import { checkAuthMiddleware } from "../auth/controller.js";
 
 export const routes = new Router();

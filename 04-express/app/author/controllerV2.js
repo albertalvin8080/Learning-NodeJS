@@ -1,13 +1,16 @@
-import * as model from "./model.js";
-import { view } from "./view.js";
+import * as model from "./modelV2.js";
+
+function docToObj(author)
+{
+    return {id: author._id, name: author.name, age: author.age};
+}
 
 export async function getAll(req, res) 
 {
-    const authors = await model.getAll();
+    let authors = await model.getAll();
+    authors = authors.map(docToObj);
 
-    res.send(
-        view("list", { authors })
-    );
+    res.render("author/list", { authors, title: "Authors" });
 }
 
 export async function getByAge(req, res)
@@ -17,9 +20,7 @@ export async function getByAge(req, res)
     let authors = await model.getByAge(parseInt(age, 10));
 
     if (authors)
-        res.send(
-            view("list", { authors, title: "Authors by Age" })
-        );
+        res.render("author/list", { authors, title: "Authors by Age" })
     else
         res.sendStatus(404);
 }
@@ -28,21 +29,18 @@ export async function getById(req, res)
 {
     const id = req.params.id;
 
-    let author = await model.getById(parseInt(id, 10));
+    let author = await model.getById(id);
+    author = docToObj(author);
 
     if (author)
-        res.send(
-            view("details", { author })
-        );
+        res.render("author/details", { author, title: "Details" });
     else
         res.sendStatus(404);
 }
 
 export async function createAuthor(req, res)
 {
-    res.send(
-        view("form", {})
-    );
+    res.render("author/form", { title: "Create Author", update: false });
 }
 
 export async function storeAuthor(req, res)
@@ -67,7 +65,7 @@ export async function updateAuthorGET(req, res)
 {
     console.log(req.url);
 
-    const id = parseInt(req.params.id, 10);
+    const id = req.params.id;
     if (!id)
     {
         res.sendStatus(404);
@@ -82,16 +80,14 @@ export async function updateAuthorGET(req, res)
         return;
     }
 
-    res.send(
-        view("form", { author, update: true })
-    );
+    res.render("author/form", { author, update: true, title: "Update Author" });
 }
 
 export async function updateAuthorPOST(req, res)
 {
     console.log(req.url);
 
-    const id = parseInt(req.params.id, 10);
+    const id = req.params.id;
     if (!id)
     {
         res.sendStatus(404);
@@ -123,7 +119,7 @@ export async function updateAuthorPOST(req, res)
 
 export async function deleteAuthor(req, res)
 {
-    const id = parseInt(req.params.id, 10);
+    const id = req.params.id;
     if (!id)
     {
         res.sendStatus(404);
