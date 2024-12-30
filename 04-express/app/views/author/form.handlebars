@@ -1,0 +1,18 @@
+<h2>
+    {{title}}
+</h2>
+{{#if update}}
+<form action="/author/update/{{author.id}}" method="POST">
+{{else}}
+<form action="/author/store" method="POST">
+{{/if}}
+    <div>
+        <label for="a_name">Name:</label>
+        <input type="text" id="a_name" name="a_name" value="{{author.name}}">
+    </div>
+    <div>
+        <label for="a_age">Age:</label>
+        <input type="number" id="a_age" name="a_age" value="{{author.age}}">
+    </div>
+    <div><button type="submit">Submit</button></div>
+</form>

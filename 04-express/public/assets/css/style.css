@@ -3,3 +3,12 @@
 body {
     background-color: aquamarine;
 }
+
+a.nav-link {
+    color: white;
+}
+
+a.nav-link:hover {
+    color: rgb(192, 192, 192);
+    text-decoration: underline;
+}

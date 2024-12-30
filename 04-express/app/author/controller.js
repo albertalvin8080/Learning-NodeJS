@@ -1,13 +1,14 @@
 import * as model from "./model.js";
-import { view } from "./view.js";
+// import { view } from "./view.js";
 
 export async function getAll(req, res) 
 {
     const authors = await model.getAll();
 
-    res.send(
-        view("list", { authors })
-    );
+    // res.send(
+    //     view("list", { authors })
+    // );
+    res.render("author/list", { authors, title: "Authors" });
 }
 
 export async function getByAge(req, res)
@@ -17,7 +18,10 @@ export async function getByAge(req, res)
     let authors = await model.getByAge(parseInt(age, 10));
 
     if (authors)
-        res.send(authors);
+        // res.send(
+        //     view("list", { authors, title: "Authors by Age" })
+        // );
+        res.render("author/list", { authors, title: "Authors by Age" })
     else
         res.sendStatus(404);
 }
@@ -29,24 +33,33 @@ export async function getById(req, res)
     let author = await model.getById(parseInt(id, 10));
 
     if (author)
-        res.send(
-            view("details", { author })
-        );
+        // res.send(
+        //     view("details", { author })
+        // );
+        res.render("author/details", { author, title: "Details" });
     else
         res.sendStatus(404);
 }
 
 export async function createAuthor(req, res)
 {
-    res.send(
-        view("form", {})
-    );
+    // res.send(
+    //     view("form", {})
+    // );
+    res.render("author/form", { title: "Create Author", update: false });
 }
 
 export async function storeAuthor(req, res)
 {
     console.log(req.url);
     const { a_name, a_age } = req.body;
+
+    if (!a_name || !a_age)
+    {
+        res.redirect("/author/create");
+        return;
+    }
+
     const saved = await model.save({ name: a_name, age: parseInt(a_age, 10) });
 
     res.redirect(
@@ -73,9 +86,10 @@ export async function updateAuthorGET(req, res)
         return;
     }
 
-    res.send(
-        view("form", {author, update: true})
-    );
+    // res.send(
+    //     view("form", { author, update: true })
+    // );
+    res.render("author/form", { author, update: true, title: "Update Author" });
 }
 
 export async function updateAuthorPOST(req, res)
@@ -97,8 +111,8 @@ export async function updateAuthorPOST(req, res)
         return;
     }
 
-    const {a_name, a_age} = req.body;
-    if(!a_name || !a_age)
+    const { a_name, a_age } = req.body;
+    if (!a_name || !a_age)
     {
         res.redirect(`/author/update/${id}`);
         return;
